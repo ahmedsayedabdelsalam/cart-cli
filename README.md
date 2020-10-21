@@ -1,37 +1,74 @@
-<p align="center">
-    <img title="Laravel Zero" height="100" src="https://raw.githubusercontent.com/laravel-zero/docs/master/images/logo/laravel-zero-readme.png" />
-</p>
+# Command Line Cart Bill.
+Please organize, design, test, document, and deploy your code as if it were
+going into production.
 
-<p align="center">
-  <a href="https://github.com/laravel-zero/framework/actions"><img src="https://img.shields.io/github/workflow/status/laravel-zero/framework/Tests.svg" alt="Build Status"></img></a>
-  <a href="https://scrutinizer-ci.com/g/laravel-zero/framework"><img src="https://img.shields.io/scrutinizer/g/laravel-zero/framework.svg" alt="Quality Score"></img></a>
-  <a href="https://packagist.org/packages/laravel-zero/framework"><img src="https://img.shields.io/packagist/dt/laravel-zero/framework.svg" alt="Total Downloads"></a>
-  <a href="https://packagist.org/packages/laravel-zero/framework"><img src="https://img.shields.io/packagist/v/laravel-zero/framework.svg?label=stable" alt="Latest Stable Version"></a>
-  <a href="https://packagist.org/packages/laravel-zero/framework"><img src="https://img.shields.io/packagist/l/laravel-zero/framework.svg" alt="License"></a>
-</p>
+## Description
 
-<h4> <center>This is a <bold>community project</bold> and not an official Laravel one </center></h4>
+***accept multiple products, combine offers, and display a total detailed bill in different currencies (based on user selection).***
 
-Laravel Zero was created by, and is maintained by [Nuno Maduro](https://github.com/nunomaduro), and is a micro-framework that provides an elegant starting point for your console application. It is an **unofficial** and customized version of Laravel optimized for building command-line applications.
+Available catalog products and their price in USD:
 
-- Built on top of the [Laravel](https://laravel.com) components.
-- Optional installation of Laravel [Eloquent](https://laravel-zero.com/docs/database/), Laravel [Logging](https://laravel-zero.com/docs/logging/) and many others.
-- Supports interactive [menus](https://laravel-zero.com/docs/build-interactive-menus/) and [desktop notifications](https://laravel-zero.com/docs/send-desktop-notifications/) on Linux, Windows & MacOS.
-- Ships with a [Scheduler](https://laravel-zero.com/docs/task-scheduling/) and  a [Standalone Compiler](https://laravel-zero.com/docs/build-a-standalone-application/).
-- Integration with [Collision](https://github.com/nunomaduro/collision) - Beautiful error reporting
+* T-shirt $10.99
+* Pants $14.99
+* Jacket $19.99
+* Shoes $24.99
 
-------
+The program can handle some special offers, which affect the pricing.
 
-## Documentation
+Available offers:
 
-For full documentation, visit [laravel-zero.com](https://laravel-zero.com/).
+* Shoes are on 10% off.
+* Buy two t-shirts and get a jacket half its price.
 
-## Support the development
-**Do you like this project? Support it by donating**
+The program accepts a list of products, outputs the detailed bill of the subtotal, tax, and discounts if applicable, bill can be displayed in various currencies.
 
-- PayPal: [Donate](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=66BYDWAT92N6L)
-- Patreon: [Donate](https://www.patreon.com/nunomaduro)
+*There is a 14% tax (before discounts) applied to all products.*
 
-## License
+E.g.:
 
-Laravel Zero is an open-source software licensed under the [MIT license](https://github.com/laravel-zero/laravel-zero/blob/stable/LICENSE.md).
+Adding the following products:
+
+```
+T-shirt
+T-shirt
+Shoes
+Jacket
+```
+
+Outputs the following bill, the user selected the USD bill:
+
+```
+Subtotal: $66.96
+Taxes: $9.37
+Discounts:
+	10% off shoes: -$2.499
+	50% off jacket: -$12.495
+Total: $61.336
+```
+
+Another, e.g., If none of the offers are eligible, the user selected the EGP bill:
+
+```
+T-shirt
+Pants
+```
+
+Outputs the following bill:
+
+```
+Subtotal: 409 e£
+Taxes: 57 e£
+Total: 467 e£
+```
+  
+## Requirements
+1. PHP >= 7.4
+1. composer. 
+  
+## How to Run
+1. clone the project.
+1. cd to the directory. 
+1. run `composer install`
+1. run ` php cart-cli cart:create T-shirt T-shirt Shoes Jacket`
+1. from more help about the command run ` php cart-cli cart:create -h`
+  
