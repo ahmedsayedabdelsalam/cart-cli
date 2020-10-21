@@ -49,7 +49,8 @@ class Cart
 
         $this->items[] = (object)[
             'product' => $product,
-            'quantity' => 1
+            'quantity' => 1,
+            'offer_applied_on' => 0
         ];
     }
 
@@ -65,7 +66,9 @@ class Cart
 
     public function getDiscounts()
     {
-        return $this->discounts;
+        return collect($this->discounts)
+            ->each(fn($discount) => $discount->amount = $this->convertToUserCurrency($discount->amount))
+            ->toArray();
     }
 
     public function getSubTotal()
@@ -84,7 +87,7 @@ class Cart
 
     public function getTotal()
     {
-        return $this->getSubTotal() + $this->getTaxes();
+        return $this->getSubTotal() - $this->totalDiscountAmount() + $this->getTaxes();
     }
 
     protected function convertToUserCurrency($amount)
@@ -111,13 +114,37 @@ class Cart
 
     private function setDiscounts()
     {
-        $offers = Offer::findOffersOnProducts(
-            $this->getItems()->map(fn($item) => $item->product->name)->toArray()
-        );
+        $offers = $this->findAppropriateOffers();
 
-        $this->discounts = $offers->filter(function ($offer) {
+        $appliedOffers = $offers->filter(function ($offer) {
             $item = $this->getItem(Product::findByName($offer->when_you_buy));
             return $item->quantity === $offer->amount_to_buy;
-        })->toArray();
+        });
+
+        $this->discounts = $appliedOffers->map(function ($offer) {
+            $item = $this->getItem(Product::findByName($offer->offer_on));
+
+            if (!$item || $item->offer_applied_on >= $item->quantity) return;
+
+            $item->offer_applied_on++;
+            return (object)[
+                'offer' => $offer,
+                'amount' => $item->product->price * $offer->offer_percentage
+            ];
+        })->filter()->toArray();
+    }
+
+    public function totalDiscountAmount()
+    {
+        return $this->convertToUserCurrency(
+            collect($this->discounts)->reduce(fn($current, $next) => $current + $next->amount, 0)
+        );
+    }
+
+    public function findAppropriateOffers()
+    {
+        return Offer::findOffersOnProducts(
+            $this->getItems()->map(fn($item) => $item->product->name)->toArray()
+        );
     }
 }
