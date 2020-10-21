@@ -81,8 +81,9 @@ class CartTest extends TestCase
         $cart->addItems(['shoes', 'shoes', 'pants']);
         $subtotal = $cart->getSubTotal();
         $taxes = $cart->getTaxes();
+        $discount = $cart->totalDiscountAmount();
 
-        $this->assertEquals($subtotal + $taxes, $cart->getTotal());
+        $this->assertEquals($subtotal - $discount + $taxes, $cart->getTotal());
     }
 
     /** @test */

@@ -72,3 +72,10 @@ Total: 467 e£
 1. run ` php cart-cli cart:create T-shirt T-shirt Shoes Jacket`
 1. from more help about the command run ` php cart-cli cart:create -h`
   
+## TODO
+1. add live currency converter.
+1. add data persistence layer for models like products, offers. 
+1. add more tests
+
+## Contribution
+Don't hesitate to submit new tested features.

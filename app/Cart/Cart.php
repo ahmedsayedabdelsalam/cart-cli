@@ -8,6 +8,7 @@ use App\Cart\Models\Offer;
 use App\Cart\Models\Product;
 use App\Cart\Services\CurrencyConverter\Contracts\CurrencyConverter;
 use App\Exceptions\InvalidCurrencyException;
+use Illuminate\Support\Collection;
 
 class Cart
 {
@@ -22,6 +23,13 @@ class Cart
      * Tax Rate.
      */
     const TAX_PERCENTAGE = 0.14;
+
+    /**
+     * Items added to the cart.
+     *
+     * @var Collection $offers
+     */
+    private $offers;
 
     /**
      * Applied discounts.
@@ -68,6 +76,7 @@ class Cart
             $this->addItem($product);
         });
 
+        $this->setAppliedOffers();
         $this->setDiscounts();
     }
 
@@ -88,7 +97,8 @@ class Cart
         $this->items[] = (object)[
             'product' => $product,
             'quantity' => 1,
-            'offer_applied_on' => 0
+            'offer_applied_on' => 0,
+            'used_in_offers' => 0
         ];
     }
 
@@ -209,14 +219,7 @@ class Cart
      */
     private function setDiscounts()
     {
-        $offers = $this->findAppropriateOffers();
-
-        $appliedOffers = $offers->filter(function ($offer) {
-            $item = $this->getItem(Product::findByName($offer->when_you_buy));
-            return $item->quantity === $offer->amount_to_buy;
-        });
-
-        $this->discounts = $appliedOffers->map(function ($offer) {
+        $this->discounts = $this->offers->map(function ($offer) {
             $item = $this->getItem(Product::findByName($offer->offer_on));
 
             if (!$item || $item->offer_applied_on >= $item->quantity) return;
@@ -242,11 +245,40 @@ class Cart
     }
 
     /**
+     * 1- Get The Appropriate Offers that matches the name of The selected Products.
+     * 2- Set The Applied Offers with The following Criteria:
+     *      a- Find the item with its Quantity that when I buy it i can get the Offer
+     *      b- Check if the Remaining Item Quantity covers the Offer Quantity that I have to buy to get it
+     *      c- Repeat the same Offer if Quantity I buy can cover the same Offer
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    private function setAppliedOffers()
+    {
+        $offers = $this->findAppropriateOffers();
+        $appliedOffers = collect();
+
+        for ($i = 0; $i < $offers->count(); $i++) {
+            $item = $this->getItem(Product::findByName($offers[$i]->when_you_buy));
+
+            if ($offers[$i]->amount_to_buy > ($item->quantity - $item->used_in_offers)) {
+                continue;
+            }
+
+            $item->used_in_offers += $offers[$i]->amount_to_buy;
+            $appliedOffers[] = $offers[$i];
+            $i--;
+        }
+
+        $this->offers = $appliedOffers;
+    }
+
+    /**
      * Find collection of Offers that matches User selected Products.
      *
      * @return \Illuminate\Support\Collection
      */
-    public function findAppropriateOffers()
+    private function findAppropriateOffers()
     {
         return Offer::findOffersOnProducts(
             $this->getItems()->map(fn($item) => $item->product->name)->toArray()
