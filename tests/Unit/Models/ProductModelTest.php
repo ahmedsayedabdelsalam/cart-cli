@@ -2,10 +2,7 @@
 
 namespace Tests\Unit\Models;
 
-use App\Cart\Cart;
 use App\Cart\Models\Product;
-use App\Exceptions\InvalidCurrencyException;
-use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class ProductModelTest extends TestCase

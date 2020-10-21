@@ -42,12 +42,14 @@ class CreateCart extends Command
 
         $this->info("Subtotal: {$currencySymbol}{$subtotal}");
         $this->info("Taxes: {$currencySymbol}{$taxes}");
-        if ($discounts = $cart->getDiscounts()) {
+
+        if ($cart->getDiscounts()->count()) {
             $this->info('Discounts:');
-            foreach ($discounts as $discount) {
-                $this->info("       {$discount->offer->name}: -{$currencySymbol}{$discount->amount}");
-            }
+            $cart->getDiscounts()->each(
+                fn($discount) => $this->info("       {$discount->offer->name}: -{$currencySymbol}{$discount->amount}")
+            );
         }
+
         $this->info("Total: {$currencySymbol}{$total}");
     }
 
