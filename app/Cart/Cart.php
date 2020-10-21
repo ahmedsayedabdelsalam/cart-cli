@@ -4,6 +4,7 @@
 namespace App\Cart;
 
 
+use App\Cart\Models\Offer;
 use App\Cart\Models\Product;
 use App\Cart\Services\CurrencyConverter\Contracts\CurrencyConverter;
 use App\Exceptions\InvalidCurrencyException;
@@ -33,6 +34,8 @@ class Cart
 
             $this->addItem($product);
         });
+
+        $this->setDiscounts();
     }
 
     public function addItem(Product $product)
@@ -104,5 +107,17 @@ class Cart
     public function getCurrencySymbol()
     {
         return $this->currencyConverter->selectedCurrency()->symbol;
+    }
+
+    private function setDiscounts()
+    {
+        $offers = Offer::findOffersOnProducts(
+            $this->getItems()->map(fn($item) => $item->product->name)->toArray()
+        );
+
+        $this->discounts = $offers->filter(function ($offer) {
+            $item = $this->getItem(Product::findByName($offer->when_you_buy));
+            return $item->quantity === $offer->amount_to_buy;
+        })->toArray();
     }
 }

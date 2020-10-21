@@ -7,7 +7,7 @@ namespace App\Cart\Models;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
-class Product
+class Product extends Model
 {
     private static array $products = [
         [
@@ -32,13 +32,6 @@ class Product
         ],
     ];
 
-    private array $attributes = [];
-
-    public function __construct($attributes = null)
-    {
-        $this->attributes = $attributes ?? [];
-    }
-
     public static function findByName(string $name)
     {
         $product = Arr::first(
@@ -49,8 +42,5 @@ class Product
         return $product ? new self($product) : null;
     }
 
-    public function __get($name)
-    {
-        return $this->attributes[$name] ?? null;
-    }
+
 }

@@ -45,8 +45,7 @@ class CreateCart extends Command
         if ($discounts = $cart->getDiscounts()) {
             $this->info('Discounts:');
             foreach ($discounts as $discount) {
-                $this->info('       10% off shoes: -$2.499');
-                $this->info('       50% off jacket: -$12.495');
+                $this->info("       $discount->name: -$2.499");
             }
         }
         $this->info("Total: {$currencySymbol}{$total}");
