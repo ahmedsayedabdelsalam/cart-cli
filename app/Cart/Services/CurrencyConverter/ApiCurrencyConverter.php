@@ -4,8 +4,6 @@
 namespace App\Cart\Services\CurrencyConverter;
 
 
-use App\Exceptions\InvalidCurrencyException;
-use Illuminate\Support\Arr;
 
 class ApiCurrencyConverter extends CurrencyConverter implements Contracts\CurrencyConverter
 {

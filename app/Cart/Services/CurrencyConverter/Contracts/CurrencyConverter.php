@@ -4,6 +4,7 @@
 namespace App\Cart\Services\CurrencyConverter\Contracts;
 
 
+
 interface CurrencyConverter
 {
     public function getConversions();
